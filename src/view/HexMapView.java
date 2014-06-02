@@ -53,7 +53,7 @@ public class HexMapView extends Canvas {
 
     private int[] translateCoordinates(int[] coords) {
         int y = this.hexFractions[2] * (this.offsets[1] - coords[1]);
-        int x = (this.hexSize * (coords[0] - this.offsets[0])) + y/2;
+        int x = (this.hexSize * (coords[0] - this.offsets[0])) + (this.hexFractions[0] * (this.offsets[1] - coords[1]));
         return new int[]{x,y};
     }
 
@@ -65,6 +65,6 @@ public class HexMapView extends Canvas {
         int[] y = new int[]{coords[1], coords[1]+fractions[1], coords[1]+fractions[2], coords[1]+fractions[3]};
         int[] yPoints = new int[]{y[0], y[1], y[2], y[3], y[2], y[1]};
 
-        g.drawOval(coords[0], coords[1], this.hexSize, this.hexSize);
+        g.drawPolygon(xPoints, yPoints, 6);
     }
 }
