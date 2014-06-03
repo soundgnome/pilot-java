@@ -9,7 +9,7 @@ public class Pilot {
     public static void main(String[] args) {
         HexMapModel map = new HexMapModel(-7,-3,12,12);
         JFrame frame = new JFrame("Pilot");
-        HexMapView view = new HexMapView(map, 60);
+        HexMapView view = new HexMapView(map, new Dimension(1200,675), 60);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.add(view);
         frame.pack();
