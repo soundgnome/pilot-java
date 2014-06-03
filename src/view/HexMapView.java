@@ -46,7 +46,9 @@ public class HexMapView extends Canvas {
         this.drawStar(g, this.translateCoordinates(new int[]{2,6}), 6);
         this.drawStar(g, this.translateCoordinates(new int[]{3,-2}), 10);
         this.drawStar(g, this.translateCoordinates(new int[]{-5,8}), 16);
-        this.drawShip(g, this.translateCoordinates(new int[]{0,0}), this.hexSize);
+
+        System.out.println(this.model.getShip());
+        this.drawShip(g, this.model.getShip(), this.hexSize);
     }
 
     private int[] getOffsets(int[] range) {
@@ -76,10 +78,13 @@ public class HexMapView extends Canvas {
         g.drawPolygon(xPoints, yPoints, 6);
     }
 
-    private void drawShip(Graphics g, int[] coords, int size) {
-        int[] xPoints = new int[]{coords[0], coords[0]+size/8, coords[0], coords[0]-size/8, coords[0]};
-        int[] yPoints = new int[]{coords[1]-size/4, coords[1]+size/4, coords[1], coords[1]+size/4, coords[1]-size/4};
-        g.fillPolygon(xPoints, yPoints, 5);
+    private void drawShip(Graphics g, ShipModel ship, int size) {
+        if (ship != null) {
+            int[] coords = this.translateCoordinates(ship.getCoords());
+            int[] xPoints = new int[]{coords[0], coords[0]+size/8, coords[0], coords[0]-size/8, coords[0]};
+            int[] yPoints = new int[]{coords[1]-size/4, coords[1]+size/4, coords[1], coords[1]+size/4, coords[1]-size/4};
+            g.fillPolygon(xPoints, yPoints, 5);
+        }
     }
 
     private void drawStar(Graphics g, int[] coords, int radius) {

@@ -9,6 +9,8 @@ public class HexMapModel {
     private int[] range;
     private ArrayList<int[]> coordinateSet;
 
+    private ShipModel ship;
+
     public HexMapModel(int startX, int startY, int width, int height) {
 
         this.offsets = new int[]{startX, startY};
@@ -27,6 +29,14 @@ public class HexMapModel {
 
     public HexModel getHex(int[] coords) {
         return this.hexes[coords[0]-this.offsets[0]][coords[1]-this.offsets[1]];
+    }
+
+    public void addShip(int[] coords) {
+        this.ship = new ShipModel(coords);
+    }
+
+    public ShipModel getShip() {
+        return this.ship;
     }
 
     public int[] getRange() {
