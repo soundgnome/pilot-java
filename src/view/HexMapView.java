@@ -12,6 +12,12 @@ public class HexMapView extends Canvas {
 
     private Color backgroundColor = Color.BLACK;
     private Color foregroundColor = Color.WHITE;
+    private BasicStroke basicStroke = new BasicStroke(1);
+    private Color[] gravityColors = new Color[]{new Color(128, 0, 0),
+                                                new Color(255, 0, 0),
+                                                new Color(255, 96, 0),
+                                                new Color(255, 192, 0)};
+    private BasicStroke gravityStroke = new BasicStroke(5);
 
     private HexMapModel model;
 
@@ -62,21 +68,29 @@ public class HexMapView extends Canvas {
         return new int[]{x,y};
     }
 
-    private void drawHex(Graphics g, int[] coords, int size, int[] fractions, HexModel hex) {
-
-        if (hex.ship != null) {
-            this.drawShip(g, hex.ship, size);
-        }
-
-        if (hex.star != null) {
-            this.drawStar(g, hex.star);
-        }
+    private void drawHex(Graphics2D g, int[] coords, int size, int[] fractions, HexModel hex) {
 
         int[] x = new int[]{coords[0], coords[0]+fractions[0], coords[0]-fractions[0]};
         int[] xPoints = new int[]{x[0], x[1], x[1], x[0], x[2], x[2]};
 
         int[] y = new int[]{coords[1]-fractions[2], coords[1]-fractions[1], coords[1]+fractions[1], coords[1]+fractions[2]};
         int[] yPoints = new int[]{y[0], y[1], y[2], y[3], y[2], y[1]};
+
+        if (hex.star != null) {
+            this.drawStar(g, hex.star);
+            int[] gravX = new int[]{x[0], x[1]-3, x[1]-3, x[0], x[2]+3, x[2]+3};
+            int[] gravY = new int[]{y[0]+3, y[1]+2, y[2]-2, y[3]-3, y[2]-2, y[1]+2};
+            int mass = hex.star.getMass();
+            g.setColor(this.gravityColors[mass-1]);
+            g.setStroke(this.gravityStroke);
+            g.drawPolygon(gravX, gravY, 6);
+            g.setColor(this.foregroundColor);
+            g.setStroke(this.basicStroke);
+        }
+
+        if (hex.ship != null) {
+            this.drawShip(g, hex.ship, size);
+        }
 
         g.drawPolygon(xPoints, yPoints, 6);
     }
