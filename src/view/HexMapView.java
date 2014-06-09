@@ -1,5 +1,6 @@
 package pilot;
 
+import java.awt.BasicStroke;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -37,17 +38,16 @@ public class HexMapView extends Canvas {
         this.setBackground(this.backgroundColor);
         Graphics2D g = (Graphics2D)graphics;
         g.setColor(this.foregroundColor);
+
+        for (StarModel star : this.model.getStars()) {
+            this.drawStar(g, star);
+        }
+
         ArrayList<int[]> coordinateSet = this.model.getCoordinateSet();
         for (int[] coords : coordinateSet) {
             this.drawHex(g, this.translateCoordinates(coords), this.hexSize, this.hexFractions, this.model.getHex(coords));
         }
-        // refactor
-        this.drawStar(g, this.translateCoordinates(new int[]{-5,2}), 8);
-        this.drawStar(g, this.translateCoordinates(new int[]{2,6}), 6);
-        this.drawStar(g, this.translateCoordinates(new int[]{3,-2}), 10);
-        this.drawStar(g, this.translateCoordinates(new int[]{-5,8}), 16);
 
-        System.out.println(this.model.getShip());
         this.drawShip(g, this.model.getShip(), this.hexSize);
     }
 
@@ -87,8 +87,10 @@ public class HexMapView extends Canvas {
         }
     }
 
-    private void drawStar(Graphics g, int[] coords, int radius) {
+    private void drawStar(Graphics g, StarModel star) {
+        int radius = star.getVolume();
         int diameter = radius*2;
+        int[] coords = this.translateCoordinates(star.getCoords());
         g.fillOval(coords[0]-radius, coords[1]-radius, diameter, diameter);
     }
 }

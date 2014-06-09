@@ -7,16 +7,16 @@ public class HexMapModel {
     private HexModel[][] hexes;
     private int[] offsets;
     private int[] range;
-    private ArrayList<int[]> coordinateSet;
+    private ArrayList<int[]> coordinateSet = new ArrayList<int[]>();
 
     private ShipModel ship;
+    private ArrayList<StarModel> stars = new ArrayList<StarModel>();
 
     public HexMapModel(int startX, int startY, int width, int height) {
 
         this.offsets = new int[]{startX, startY};
         this.range = new int[]{startX, startY, startX+width-1, startY+height-1};
 
-        this.coordinateSet = new ArrayList<int[]>();
         this.hexes = new HexModel[width][height];
         for (int i=0; i<width; i++) {
 
@@ -37,6 +37,14 @@ public class HexMapModel {
 
     public ShipModel getShip() {
         return this.ship;
+    }
+
+    public void addStar(StarModel star) {
+        this.stars.add(star);
+    }
+
+    public ArrayList<StarModel> getStars() {
+        return this.stars;
     }
 
     public int[] getRange() {

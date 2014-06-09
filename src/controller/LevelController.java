@@ -33,6 +33,7 @@ public class LevelController {
             Document levelData = this.builder.parse(xml);
             levelData.getDocumentElement().normalize();
 
+
             Element area = (Element)levelData.getElementsByTagName("area").item(0);
             map = new HexMapModel(Integer.parseInt(area.getAttribute("startx")),
                                   Integer.parseInt(area.getAttribute("starty")),
@@ -42,7 +43,16 @@ public class LevelController {
             int[] shipCoords = getCoords((Element)levelData.getElementsByTagName("ship").item(0));
             map.addShip(shipCoords);
 
+
             NodeList stars = levelData.getElementsByTagName("star");
+            int starCount = stars.getLength();
+            for (int i=0; i<starCount; i++) {
+                Element el = (Element)stars.item(i);
+                StarModel star = new StarModel(this.getCoords(el),
+                                               Integer.parseInt(el.getAttribute("volume")),
+                                               Integer.parseInt(el.getAttribute("mass")));
+                map.addStar(star);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
