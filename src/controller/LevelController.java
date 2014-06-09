@@ -41,7 +41,7 @@ public class LevelController {
                                   Integer.parseInt(area.getAttribute("height")));
 
             int[] shipCoords = getCoords((Element)levelData.getElementsByTagName("ship").item(0));
-            map.addShip(shipCoords);
+            map.addShip(new ShipModel(shipCoords));
 
 
             NodeList stars = levelData.getElementsByTagName("star");

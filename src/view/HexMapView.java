@@ -39,16 +39,11 @@ public class HexMapView extends Canvas {
         Graphics2D g = (Graphics2D)graphics;
         g.setColor(this.foregroundColor);
 
-        for (StarModel star : this.model.getStars()) {
-            this.drawStar(g, star);
-        }
-
         ArrayList<int[]> coordinateSet = this.model.getCoordinateSet();
         for (int[] coords : coordinateSet) {
             this.drawHex(g, this.translateCoordinates(coords), this.hexSize, this.hexFractions, this.model.getHex(coords));
         }
 
-        this.drawShip(g, this.model.getShip(), this.hexSize);
     }
 
     private int[] getOffsets(int[] range) {
@@ -68,6 +63,14 @@ public class HexMapView extends Canvas {
     }
 
     private void drawHex(Graphics g, int[] coords, int size, int[] fractions, HexModel hex) {
+
+        if (hex.ship != null) {
+            this.drawShip(g, hex.ship, size);
+        }
+
+        if (hex.star != null) {
+            this.drawStar(g, hex.star);
+        }
 
         int[] x = new int[]{coords[0], coords[0]+fractions[0], coords[0]-fractions[0]};
         int[] xPoints = new int[]{x[0], x[1], x[1], x[0], x[2], x[2]};
