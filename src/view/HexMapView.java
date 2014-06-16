@@ -16,7 +16,8 @@ public class HexMapView extends Canvas {
     private Color[] gravityColors = new Color[]{new Color(128, 0, 0),
                                                 new Color(255, 0, 0),
                                                 new Color(255, 96, 0),
-                                                new Color(255, 192, 0)};
+                                                new Color(255, 192, 0),
+                                                new Color(255, 255, 128)};
     private BasicStroke gravityStroke = new BasicStroke(5);
 
     private HexMapModel model;
@@ -78,10 +79,16 @@ public class HexMapView extends Canvas {
 
         if (hex.star != null) {
             this.drawStar(g, hex.star);
+        }
+
+        if (hex.tidalForce > 0) {
             int[] gravX = new int[]{x[0], x[1]-3, x[1]-3, x[0], x[2]+3, x[2]+3};
             int[] gravY = new int[]{y[0]+3, y[1]+2, y[2]-2, y[3]-3, y[2]-2, y[1]+2};
-            int mass = hex.star.getMass();
-            g.setColor(this.gravityColors[mass-1]);
+            try {
+                g.setColor(this.gravityColors[hex.tidalForce-1]);
+            } catch (ArrayIndexOutOfBoundsException e) {
+                g.setColor(Color.WHITE);
+            }
             g.setStroke(this.gravityStroke);
             g.drawPolygon(gravX, gravY, 6);
             g.setColor(this.foregroundColor);

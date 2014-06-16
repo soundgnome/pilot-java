@@ -33,7 +33,15 @@ public class HexMapModel {
 
     public void addStar(StarModel star) {
         int[] coords = star.getCoords();
-        this.getHex(coords).star = star;
+        HexModel hex = this.getHex(coords);
+        hex.star = star;
+        int force = star.getMass();
+        hex.tidalForce += force;
+        for (int i=1; i<force; i++) {
+            for (HexModel neighbor : this.getNeighbors(coords, i)) {
+                neighbor.tidalForce += force-i;
+            }
+        }
     }
 
     public int[] getRange() {
@@ -45,7 +53,58 @@ public class HexMapModel {
     }
 
     public HexModel getHex(int[] coords) {
-        return this.hexes[coords[0]-this.offsets[0]][coords[1]-this.offsets[1]];
+        HexModel hex;
+        try {
+            hex = this.hexes[coords[0]-this.offsets[0]][coords[1]-this.offsets[1]];
+        } catch (ArrayIndexOutOfBoundsException e) {
+            hex = null;
+        }
+        return hex;
+    }
+
+    public int[] getNeighborCoords(int[] initialCoords, int direction) {
+        int[] coords = initialCoords.clone();
+        switch (direction) {
+        case 0:
+            coords[0] += 1;
+            coords[1] += 1;
+            break;
+        case 1:
+            coords[0] += 1;
+            break;
+        case 2:
+            coords[1] -= 1;
+            break;
+        case 3:
+            coords[0] -= 1;
+            coords[1] -= 1;
+            break;
+        case 4:
+            coords[0] -= 1;
+            break;
+        case 5:
+            coords[1] += 1;
+            break;
+        }
+        return coords;
+    }
+
+    public ArrayList<HexModel> getNeighbors(int[] coords, int distance) {
+        ArrayList<HexModel> hexes = new ArrayList<HexModel>();
+
+        for (int i=0; i<distance; i++) {
+            coords = this.getNeighborCoords(coords, 4);
+        }
+
+        for (int i=0; i<6; i++) {
+            for (int j=0; j<distance; j++) {
+                coords = this.getNeighborCoords(coords, i);
+                HexModel hex = this.getHex(coords);
+                if (hex != null)
+                    hexes.add(hex);
+            }
+        }
+        return hexes;
     }
 
 }
