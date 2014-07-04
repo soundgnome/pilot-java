@@ -27,12 +27,15 @@ public class HexMapView extends Canvas {
     private int[] hexFractions;
     private int[] offsets;
 
+    private int[] hexInfoCoords = new int[]{0, 50, 80, 200, 50};
+
     public HexMapView(HexMapModel model, Dimension mapDimension, int hexSize) {
         this.model = model;
         this.mapDimension = mapDimension;
         this.hexSize = hexSize;
         this.offsets = this.getOffsets(model.getRange());
         this.hexFractions = this.calculateFractions(this.hexSize);
+        this.hexInfoCoords[0] = mapDimension.width-hexInfoCoords[3];
     }
 
     @Override
@@ -50,7 +53,14 @@ public class HexMapView extends Canvas {
         for (int[] coords : coordinateSet) {
             this.drawHex(g, this.translateCoordinates(coords), this.hexSize, this.hexFractions, this.model.getHex(coords));
         }
+    }
 
+    public void updateHexInfo(int x, int y) {
+        Graphics2D g = (Graphics2D)this.getGraphics();
+        g.setBackground(this.backgroundColor);
+        g.clearRect(this.hexInfoCoords[0], this.hexInfoCoords[1], this.hexInfoCoords[3], this.hexInfoCoords[4]);
+        g.setColor(this.foregroundColor);
+        g.drawString("Cursor Position: "+x+", "+y, this.hexInfoCoords[0], this.hexInfoCoords[2]);
     }
 
     private int[] getOffsets(int[] range) {
