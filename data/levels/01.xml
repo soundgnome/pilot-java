@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <level>
-    <area id="area" startx="-7" starty="-2" width="12" height="12" />
-    <ship id="ship"><coords x="0" y="0" /></ship>
-    <star volume="8" mass="2"><coords x="-5" y="-1" /></star>
-    <star volume="6" mass="1"><coords x="2" y="6" /></star>
-    <star volume="10" mass="3"><coords x="3" y="0" /></star>
-    <star volume="16" mass="4"><coords x="-5" y="8" /></star>
-    <star volume="16" mass="4"><coords x="-2" y="8" /></star>
+    <area id="area" startx="743" starty="748" width="12" height="12" />
+    <ship id="ship"><coords x="750" y="750" /></ship>
+    <star volume="8" mass="2"><coords x="745" y="748" /></star>
+    <star volume="8" mass="2"><coords x="752" y="756" /></star>
+    <star volume="6" mass="1"><coords x="747" y="752" /></star>
+    <star volume="10" mass="3"><coords x="753" y="750" /></star>
+    <star volume="16" mass="4"><coords x="745" y="756" /></star>
+    <star volume="16" mass="4"><coords x="749" y="757" /></star>
 </level>

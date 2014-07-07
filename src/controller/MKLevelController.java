@@ -8,9 +8,7 @@ public class MKLevelController extends LevelController implements MouseMotionLis
     private HexMapView view;
 
     public void mouseMoved(MouseEvent e) {
-        int x = e.getX();
-        int y = e.getY();
-        this.view.updateHexInfo(x, y);
+        this.view.updateHexInfo(e.getX(), e.getY());
     }
 
     /** required for MouseMotionListener implementation */

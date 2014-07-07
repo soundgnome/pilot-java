@@ -7,18 +7,22 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class HexMapView extends Canvas {
 
-    private Color backgroundColor = Color.BLACK;
-    private Color foregroundColor = Color.WHITE;
-    private BasicStroke basicStroke = new BasicStroke(1);
-    private Color[] gravityColors = new Color[]{new Color(128, 0, 0),
+    private final Color backgroundColor = Color.BLACK;
+    private final Color foregroundColor = Color.WHITE;
+    private final Color[] gravityColors = new Color[]{new Color(128, 0, 0),
                                                 new Color(255, 0, 0),
                                                 new Color(255, 96, 0),
                                                 new Color(255, 192, 0),
                                                 new Color(255, 255, 128)};
-    private BasicStroke gravityStroke = new BasicStroke(5);
+
+    private final BasicStroke basicStroke = new BasicStroke(1);
+    private final BasicStroke gravityStroke = new BasicStroke(5);
+
+    private final int[] hexInfoCoords = new int[]{0, 50, 80, 200, 50};
 
     private HexMapModel model;
 
@@ -27,7 +31,9 @@ public class HexMapView extends Canvas {
     private int[] hexFractions;
     private int[] offsets;
 
-    private int[] hexInfoCoords = new int[]{0, 50, 80, 200, 50};
+    private HashMap<Integer, HashMap<Integer, int[]>> pixelLookup;
+    private int[] previewHexCoords = new int[]{0,0};
+
 
     public HexMapView(HexMapModel model, Dimension mapDimension, int hexSize) {
         this.model = model;
@@ -36,6 +42,18 @@ public class HexMapView extends Canvas {
         this.offsets = this.getOffsets(model.getRange());
         this.hexFractions = this.calculateFractions(this.hexSize);
         this.hexInfoCoords[0] = mapDimension.width-hexInfoCoords[3];
+
+        this.pixelLookup = new HashMap<Integer, HashMap<Integer, int[]>>();
+        ArrayList<int[]> coordinateSet = this.model.getCoordinateSet();
+        for (int[] coords : coordinateSet) {
+            int[] pixels = this.coordsToPixels(coords);
+            HashMap row = this.pixelLookup.get(pixels[1]);
+            if (row == null) {
+                row = new HashMap<Integer, int[]>();
+                this.pixelLookup.put(pixels[1], row);
+            }
+            row.put(pixels[0], coords);
+        }
     }
 
     @Override
@@ -51,16 +69,20 @@ public class HexMapView extends Canvas {
 
         ArrayList<int[]> coordinateSet = this.model.getCoordinateSet();
         for (int[] coords : coordinateSet) {
-            this.drawHex(g, this.translateCoordinates(coords), this.hexSize, this.hexFractions, this.model.getHex(coords));
+            this.drawHex(g, this.coordsToPixels(coords), this.hexSize, this.hexFractions, this.model.getHex(coords));
         }
     }
 
     public void updateHexInfo(int x, int y) {
-        Graphics2D g = (Graphics2D)this.getGraphics();
-        g.setBackground(this.backgroundColor);
-        g.clearRect(this.hexInfoCoords[0], this.hexInfoCoords[1], this.hexInfoCoords[3], this.hexInfoCoords[4]);
-        g.setColor(this.foregroundColor);
-        g.drawString("Cursor Position: "+x+", "+y, this.hexInfoCoords[0], this.hexInfoCoords[2]);
+        int[] coords = this.pixelsToCoords(x, y);
+        if (coords[0] != this.previewHexCoords[0] || coords[1] != this.previewHexCoords[1]) {
+            this.previewHexCoords = coords;
+            Graphics2D g = (Graphics2D)this.getGraphics();
+            g.setBackground(this.backgroundColor);
+            g.clearRect(this.hexInfoCoords[0], this.hexInfoCoords[1], this.hexInfoCoords[3], this.hexInfoCoords[4]);
+            g.setColor(this.foregroundColor);
+            g.drawString("Cursor Position: "+coords[0]+", "+coords[1], this.hexInfoCoords[0], this.hexInfoCoords[2]);
+        }
     }
 
     private int[] getOffsets(int[] range) {
@@ -73,10 +95,16 @@ public class HexMapView extends Canvas {
         return fractions;
     }
 
-    private int[] translateCoordinates(int[] coords) {
+    private int[] coordsToPixels(int[] coords) {
         int y = this.hexFractions[3] * (this.offsets[1] - coords[1]) + this.hexSize;
         int x = (this.hexSize * (coords[0] - this.offsets[0])) + (this.hexFractions[0] * (this.offsets[1] - coords[1]))  + this.hexSize;
         return new int[]{x,y};
+    }
+
+    private int[] pixelsToCoords(int x, int y) {
+        y = y - (y % this.hexFractions[3]);
+        x = x - (x % this.hexSize);
+        return new int[]{x, y};
     }
 
     private void drawHex(Graphics2D g, int[] coords, int size, int[] fractions, HexModel hex) {
@@ -114,7 +142,7 @@ public class HexMapView extends Canvas {
 
     private void drawShip(Graphics g, ShipModel ship, int size) {
         if (ship != null) {
-            int[] coords = this.translateCoordinates(ship.getCoords());
+            int[] coords = this.coordsToPixels(ship.getCoords());
             int[] xPoints = new int[]{coords[0], coords[0]+size/8, coords[0], coords[0]-size/8, coords[0]};
             int[] yPoints = new int[]{coords[1]-size/4, coords[1]+size/4, coords[1], coords[1]+size/4, coords[1]-size/4};
             g.fillPolygon(xPoints, yPoints, 5);
@@ -124,7 +152,7 @@ public class HexMapView extends Canvas {
     private void drawStar(Graphics g, StarModel star) {
         int radius = star.getVolume();
         int diameter = radius*2;
-        int[] coords = this.translateCoordinates(star.getCoords());
+        int[] coords = this.coordsToPixels(star.getCoords());
         g.fillOval(coords[0]-radius, coords[1]-radius, diameter, diameter);
     }
 }
