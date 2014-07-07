@@ -11,6 +11,8 @@ import java.util.HashMap;
 
 public class HexMapView extends Canvas {
 
+    private static final long serialVersionUID = 1L;
+
     private final Color backgroundColor = Color.BLACK;
     private final Color foregroundColor = Color.WHITE;
     private final Color[] gravityColors = new Color[]{new Color(128, 0, 0),
@@ -47,7 +49,7 @@ public class HexMapView extends Canvas {
         ArrayList<int[]> coordinateSet = this.model.getCoordinateSet();
         for (int[] coords : coordinateSet) {
             int[] pixels = this.coordsToPixels(coords);
-            HashMap row = this.pixelLookup.get(pixels[1]);
+            HashMap<Integer, int[]> row = this.pixelLookup.get(pixels[1]);
             if (row == null) {
                 row = new HashMap<Integer, int[]>();
                 this.pixelLookup.put(pixels[1], row);
