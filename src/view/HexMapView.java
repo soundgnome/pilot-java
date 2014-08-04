@@ -30,7 +30,7 @@ public class HexMapView extends Canvas {
 
     private Dimension mapDimension;
     private int hexSize;
-    private int[] hexFractions;
+    private HashMap<String, Integer> hexDimensions;
     private int[] offsets;
 
     private HashMap<Integer, HashMap<Integer, int[]>> pixelLookup;
@@ -42,7 +42,7 @@ public class HexMapView extends Canvas {
         this.mapDimension = mapDimension;
         this.hexSize = hexSize;
         this.offsets = this.getOffsets(model.getRange());
-        this.hexFractions = this.calculateFractions(this.hexSize);
+        this.hexDimensions = this.calculateDimensions(this.hexSize);
         this.hexInfoCoords[0] = mapDimension.width-hexInfoCoords[3];
 
         this.pixelLookup = new HashMap<Integer, HashMap<Integer, int[]>>();
@@ -71,7 +71,7 @@ public class HexMapView extends Canvas {
 
         ArrayList<int[]> coordinateSet = this.model.getCoordinateSet();
         for (int[] coords : coordinateSet) {
-            this.drawHex(g, this.coordsToPixels(coords), this.hexSize, this.hexFractions, this.model.getHex(coords));
+            this.drawHex(g, this.coordsToPixels(coords), this.hexSize, this.hexDimensions, this.model.getHex(coords));
         }
     }
 
@@ -91,30 +91,35 @@ public class HexMapView extends Canvas {
         return new int[]{range[0], range[3]};
     }
 
-    private int[] calculateFractions(int size) {
+    private HashMap<String, Integer> calculateDimensions(int size) {
         double side = 0.5*size/Math.sqrt(3);
-        int[] fractions = new int[]{size/2, (int)side, (int)(side*2), (int)(side*3)};
-        return fractions;
+        HashMap<String, Integer> dimensions = new HashMap<String, Integer>();
+        dimensions.put("WIDTH", size);
+        dimensions.put("HALF_WIDTH", size/2);
+        dimensions.put("HALF_HEIGHT", (int)(side*2));
+        dimensions.put("SIDE_HEIGHT", (int)side);
+        dimensions.put("ROW_HEIGHT", (int)(side*3));
+        return dimensions;
     }
 
     private int[] coordsToPixels(int[] coords) {
-        int y = this.hexFractions[3] * (this.offsets[1] - coords[1]) + this.hexSize;
-        int x = (this.hexSize * (coords[0] - this.offsets[0])) + (this.hexFractions[0] * (this.offsets[1] - coords[1]))  + this.hexSize;
+        int y = this.hexDimensions.get("ROW_HEIGHT") * (this.offsets[1] - coords[1]) + this.hexSize;
+        int x = (this.hexSize * (coords[0] - this.offsets[0])) + (this.hexDimensions.get("HALF_WIDTH") * (this.offsets[1] - coords[1]))  + this.hexSize;
         return new int[]{x,y};
     }
 
     private int[] pixelsToCoords(int x, int y) {
-        y = y - (y % this.hexFractions[3]);
+        y = y - (y % this.hexDimensions.get("ROW_HEIGHT"));
         x = x - (x % this.hexSize);
         return new int[]{x, y};
     }
 
-    private void drawHex(Graphics2D g, int[] coords, int size, int[] fractions, HexModel hex) {
+    private void drawHex(Graphics2D g, int[] coords, int size, HashMap<String, Integer> dimensions, HexModel hex) {
 
-        int[] x = new int[]{coords[0], coords[0]+fractions[0], coords[0]-fractions[0]};
+        int[] x = new int[]{coords[0], coords[0]+dimensions.get("HALF_WIDTH"), coords[0]-dimensions.get("HALF_WIDTH")};
         int[] xPoints = new int[]{x[0], x[1], x[1], x[0], x[2], x[2]};
 
-        int[] y = new int[]{coords[1]-fractions[2], coords[1]-fractions[1], coords[1]+fractions[1], coords[1]+fractions[2]};
+        int[] y = new int[]{coords[1]-dimensions.get("HALF_HEIGHT"), coords[1]-dimensions.get("SIDE_HEIGHT"), coords[1]+dimensions.get("SIDE_HEIGHT"), coords[1]+dimensions.get("HALF_HEIGHT")};
         int[] yPoints = new int[]{y[0], y[1], y[2], y[3], y[2], y[1]};
 
         if (hex.star != null) {
