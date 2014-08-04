@@ -29,7 +29,6 @@ public class HexMapView extends Canvas {
     private HexMapModel model;
 
     private Dimension mapDimension;
-    private int hexSize;
     private HashMap<String, Integer> hexDimensions;
     private int[] offsets;
 
@@ -40,9 +39,8 @@ public class HexMapView extends Canvas {
     public HexMapView(HexMapModel model, Dimension mapDimension, int hexSize) {
         this.model = model;
         this.mapDimension = mapDimension;
-        this.hexSize = hexSize;
         this.offsets = this.getOffsets(model.getRange());
-        this.hexDimensions = this.calculateDimensions(this.hexSize);
+        this.hexDimensions = this.calculateDimensions(hexSize);
         this.hexInfoCoords[0] = mapDimension.width-hexInfoCoords[3];
 
         this.pixelLookup = new HashMap<Integer, HashMap<Integer, int[]>>();
@@ -71,7 +69,7 @@ public class HexMapView extends Canvas {
 
         ArrayList<int[]> coordinateSet = this.model.getCoordinateSet();
         for (int[] coords : coordinateSet) {
-            this.drawHex(g, this.coordsToPixels(coords), this.hexSize, this.hexDimensions, this.model.getHex(coords));
+            this.drawHex(g, this.coordsToPixels(coords), this.model.getHex(coords));
         }
     }
 
@@ -103,23 +101,23 @@ public class HexMapView extends Canvas {
     }
 
     private int[] coordsToPixels(int[] coords) {
-        int y = this.hexDimensions.get("ROW_HEIGHT") * (this.offsets[1] - coords[1]) + this.hexSize;
-        int x = (this.hexSize * (coords[0] - this.offsets[0])) + (this.hexDimensions.get("HALF_WIDTH") * (this.offsets[1] - coords[1]))  + this.hexSize;
+        int y = this.hexDimensions.get("ROW_HEIGHT") * (this.offsets[1] - coords[1]) + this.hexDimensions.get("WIDTH");
+        int x = (this.hexDimensions.get("WIDTH") * (coords[0] - this.offsets[0])) + (this.hexDimensions.get("HALF_WIDTH") * (this.offsets[1] - coords[1]))  + this.hexDimensions.get("WIDTH");
         return new int[]{x,y};
     }
 
     private int[] pixelsToCoords(int x, int y) {
         y = y - (y % this.hexDimensions.get("ROW_HEIGHT"));
-        x = x - (x % this.hexSize);
+        x = x - (x % this.hexDimensions.get("WIDTH"));
         return new int[]{x, y};
     }
 
-    private void drawHex(Graphics2D g, int[] coords, int size, HashMap<String, Integer> dimensions, HexModel hex) {
+    private void drawHex(Graphics2D g, int[] coords, HexModel hex) {
 
-        int[] x = new int[]{coords[0], coords[0]+dimensions.get("HALF_WIDTH"), coords[0]-dimensions.get("HALF_WIDTH")};
+        int[] x = new int[]{coords[0], coords[0]+this.hexDimensions.get("HALF_WIDTH"), coords[0]-this.hexDimensions.get("HALF_WIDTH")};
         int[] xPoints = new int[]{x[0], x[1], x[1], x[0], x[2], x[2]};
 
-        int[] y = new int[]{coords[1]-dimensions.get("HALF_HEIGHT"), coords[1]-dimensions.get("SIDE_HEIGHT"), coords[1]+dimensions.get("SIDE_HEIGHT"), coords[1]+dimensions.get("HALF_HEIGHT")};
+        int[] y = new int[]{coords[1]-this.hexDimensions.get("HALF_HEIGHT"), coords[1]-this.hexDimensions.get("SIDE_HEIGHT"), coords[1]+this.hexDimensions.get("SIDE_HEIGHT"), coords[1]+this.hexDimensions.get("HALF_HEIGHT")};
         int[] yPoints = new int[]{y[0], y[1], y[2], y[3], y[2], y[1]};
 
         if (hex.star != null) {
@@ -141,14 +139,15 @@ public class HexMapView extends Canvas {
         }
 
         if (hex.ship != null) {
-            this.drawShip(g, hex.ship, size);
+            this.drawShip(g, hex.ship);
         }
 
         g.drawPolygon(xPoints, yPoints, 6);
     }
 
-    private void drawShip(Graphics g, ShipModel ship, int size) {
+    private void drawShip(Graphics g, ShipModel ship) {
         if (ship != null) {
+            int size = this.hexDimensions.get("WIDTH");
             int[] coords = this.coordsToPixels(ship.getCoords());
             int[] xPoints = new int[]{coords[0], coords[0]+size/8, coords[0], coords[0]-size/8, coords[0]};
             int[] yPoints = new int[]{coords[1]-size/4, coords[1]+size/4, coords[1], coords[1]+size/4, coords[1]-size/4};
