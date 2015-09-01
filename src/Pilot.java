@@ -1,22 +1,35 @@
 package pilot;
 
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.event.MouseMotionListener;
-import javax.swing.JFrame;
-
 public class Pilot {
 
+    final private static long frameNanos = 1000000000 / 60;
+
+    private static boolean isRunning;
+    private static MasterView view;
+
     public static void main(String[] args) {
-        MKLevelController level = new MKLevelController();
-        HexMapModel map = level.getMapForLevel(1);
-        JFrame frame = new JFrame("Pilot");
-        HexMapView view = new HexMapView(map, new Dimension(1200,675), 60);
-        view.addMouseMotionListener((MouseMotionListener)level);
-        level.setView(view);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(view);
-        frame.pack();
-        frame.setVisible(true);
+        isRunning = true;
+        view = new MasterView();
+        view.activate();
+
+        long nextFrameNanos;
+        long sleepNanos;
+        while (isRunning) {
+            nextFrameNanos = System.nanoTime() + frameNanos;
+            view.render();
+            sleepNanos = nextFrameNanos - System.nanoTime();
+
+            if (sleepNanos > 1000000) {
+                try {
+                    Thread.sleep(sleepNanos / 1000000);
+                } catch (InterruptedException e) {
+                    System.err.println("Game loop interrupted: " + e.getMessage());
+                }
+            }
+
+        }
     }
+
+    public void stop() { isRunning = false; }
+
 }
