@@ -13,27 +13,27 @@ public class HexMapView extends Canvas {
 
     private static final long serialVersionUID = 1L;
 
-    private final Color backgroundColor = Color.BLACK;
-    private final Color foregroundColor = Color.WHITE;
-    private final Color[] gravityColors = new Color[]{new Color(128, 0, 0),
+    protected final Color backgroundColor = Color.BLACK;
+    protected final Color foregroundColor = Color.WHITE;
+    protected final Color[] gravityColors = new Color[]{new Color(128, 0, 0),
                                                 new Color(255, 0, 0),
                                                 new Color(255, 96, 0),
                                                 new Color(255, 192, 0),
                                                 new Color(255, 255, 128)};
 
-    private final BasicStroke basicStroke = new BasicStroke(1);
-    private final BasicStroke gravityStroke = new BasicStroke(5);
+    protected final BasicStroke basicStroke = new BasicStroke(1);
+    protected final BasicStroke gravityStroke = new BasicStroke(5);
 
-    private final int[] hexInfoCoords = new int[]{0, 50, 80, 200, 50};
+    protected final int[] hexInfoCoords = new int[]{0, 50, 80, 200, 50};
 
-    private HexMapModel model;
+    protected HexMapModel model;
+    protected Graphics2D g2d;
 
-    private Dimension mapDimension;
-    private HashMap<String, Integer> hexDimensions;
-    private int[] offsets;
+    protected Dimension mapDimension;
+    protected HashMap<String, Integer> hexDimensions;
+    protected int[] offsets;
 
-    private HashMap<Integer, HashMap<Integer, int[]>> pixelLookup;
-    private int[] previewHexCoords = new int[]{0,0};
+    protected HashMap<Integer, HashMap<Integer, int[]>> pixelLookup;
 
 
     public HexMapView(HexMapModel model, Dimension mapDimension, int hexSize) {
@@ -64,32 +64,24 @@ public class HexMapView extends Canvas {
     @Override
     public void paint(Graphics graphics) {
         this.setBackground(this.backgroundColor);
-        Graphics2D g = (Graphics2D)graphics;
-        g.setColor(this.foregroundColor);
+        Graphics2D g2d = (Graphics2D)graphics;
+        g2d.setColor(this.foregroundColor);
 
         ArrayList<int[]> coordinateSet = this.model.getCoordinateSet();
         for (int[] coords : coordinateSet) {
-            this.drawHex(g, this.coordsToPixels(coords), this.model.getHex(coords));
+            this.drawHex(g2d, this.coordsToPixels(coords), this.model.getHex(coords));
         }
     }
 
-    public void updateHexInfo(int x, int y) {
-        int[] coords = this.pixelsToCoords(x, y);
-        if (coords[0] != this.previewHexCoords[0] || coords[1] != this.previewHexCoords[1]) {
-            this.previewHexCoords = coords;
-            Graphics2D g = (Graphics2D)this.getGraphics();
-            g.setBackground(this.backgroundColor);
-            g.clearRect(this.hexInfoCoords[0], this.hexInfoCoords[1], this.hexInfoCoords[3], this.hexInfoCoords[4]);
-            g.setColor(this.foregroundColor);
-            g.drawString("Cursor Position: "+coords[0]+", "+coords[1], this.hexInfoCoords[0], this.hexInfoCoords[2]);
-        }
+    public void render() {
+        this.g2d = (Graphics2D)this.getGraphics();
     }
 
-    private int[] getOffsets(int[] range) {
+    protected int[] getOffsets(int[] range) {
         return new int[]{range[0], range[3]};
     }
 
-    private HashMap<String, Integer> calculateDimensions(int size) {
+    protected HashMap<String, Integer> calculateDimensions(int size) {
         double side = 0.5*size/Math.sqrt(3);
         HashMap<String, Integer> dimensions = new HashMap<String, Integer>();
         dimensions.put("WIDTH", size);
@@ -100,19 +92,19 @@ public class HexMapView extends Canvas {
         return dimensions;
     }
 
-    private int[] coordsToPixels(int[] coords) {
+    protected int[] coordsToPixels(int[] coords) {
         int y = this.hexDimensions.get("ROW_HEIGHT") * (this.offsets[1] - coords[1]) + this.hexDimensions.get("WIDTH");
         int x = (this.hexDimensions.get("WIDTH") * (coords[0] - this.offsets[0])) + (this.hexDimensions.get("HALF_WIDTH") * (this.offsets[1] - coords[1]))  + this.hexDimensions.get("WIDTH");
         return new int[]{x,y};
     }
 
-    private int[] pixelsToCoords(int x, int y) {
+    protected int[] pixelsToCoords(int x, int y) {
         y = y - (y % this.hexDimensions.get("ROW_HEIGHT"));
         x = x - (x % this.hexDimensions.get("WIDTH"));
         return new int[]{x, y};
     }
 
-    private void drawHex(Graphics2D g, int[] coords, HexModel hex) {
+    protected void drawHex(Graphics2D g, int[] coords, HexModel hex) {
 
         int[] x = new int[]{coords[0], coords[0]+this.hexDimensions.get("HALF_WIDTH"), coords[0]-this.hexDimensions.get("HALF_WIDTH")};
         int[] xPoints = new int[]{x[0], x[1], x[1], x[0], x[2], x[2]};
@@ -145,7 +137,7 @@ public class HexMapView extends Canvas {
         g.drawPolygon(xPoints, yPoints, 6);
     }
 
-    private void drawShip(Graphics g, ShipModel ship) {
+    protected void drawShip(Graphics g, ShipModel ship) {
         if (ship != null) {
             int size = this.hexDimensions.get("WIDTH");
             int[] coords = this.coordsToPixels(ship.getCoords());
@@ -155,7 +147,7 @@ public class HexMapView extends Canvas {
         }
     }
 
-    private void drawStar(Graphics g, StarModel star) {
+    protected void drawStar(Graphics g, StarModel star) {
         int radius = star.getVolume();
         int diameter = radius*2;
         int[] coords = this.coordsToPixels(star.getCoords());

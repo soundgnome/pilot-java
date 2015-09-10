@@ -1,20 +1,12 @@
 package pilot;
 
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
+import java.awt.MouseInfo;
+import java.awt.Point;
 
-public class MKLevelController extends LevelController implements MouseMotionListener {
+public class MKLevelController extends LevelController {
 
-    private HexMapView view;
-
-    public void mouseMoved(MouseEvent e) {
-        this.view.updateHexInfo(e.getX(), e.getY());
+    public Point getMousePosition() {
+        return MouseInfo.getPointerInfo().getLocation();
     }
 
-    /** required for MouseMotionListener implementation */
-    public void mouseDragged(MouseEvent e) {}
-
-    public void setView(HexMapView view) {
-        this.view = view;
-    }
 }
