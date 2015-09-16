@@ -6,12 +6,16 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class HexMapView extends Canvas {
 
     private static final long serialVersionUID = 1L;
+
+    protected BufferedImage background;
+    protected BufferedImage composite;
 
     protected final Color backgroundColor = Color.BLACK;
     protected final Color foregroundColor = Color.WHITE;
@@ -42,6 +46,8 @@ public class HexMapView extends Canvas {
         this.offsets = this.getOffsets(model.getRange());
         this.hexDimensions = this.calculateDimensions(hexSize);
         this.hexInfoCoords[0] = mapDimension.width-hexInfoCoords[3];
+        this.background = new BufferedImage(mapDimension.width, mapDimension.height, BufferedImage.TYPE_INT_RGB);
+        this.composite = new BufferedImage(mapDimension.width, mapDimension.height, BufferedImage.TYPE_INT_RGB);
 
         this.pixelLookup = new HashMap<Integer, HashMap<Integer, int[]>>();
         ArrayList<int[]> coordinateSet = this.model.getCoordinateSet();
@@ -54,6 +60,7 @@ public class HexMapView extends Canvas {
             }
             row.put(pixels[0], coords);
         }
+
     }
 
     @Override
@@ -63,8 +70,19 @@ public class HexMapView extends Canvas {
 
     @Override
     public void paint(Graphics graphics) {
-        this.setBackground(this.backgroundColor);
-        Graphics2D g2d = (Graphics2D)graphics;
+        this.updateBackground();
+        this.render();
+    }
+
+    public void render() {
+        this.updateComposite();
+        this.getGraphics().drawImage(this.composite, 0, 0, null);
+    }
+
+    protected void updateBackground() {
+        Graphics2D g2d = this.background.createGraphics();
+
+        g2d.setBackground(this.backgroundColor);
         g2d.setColor(this.foregroundColor);
 
         ArrayList<int[]> coordinateSet = this.model.getCoordinateSet();
@@ -73,8 +91,10 @@ public class HexMapView extends Canvas {
         }
     }
 
-    public void render() {
-        this.g2d = (Graphics2D)this.getGraphics();
+    protected Graphics2D updateComposite() {
+        Graphics2D g2d = this.composite.createGraphics();
+        g2d.drawImage(this.background, 0, 0, null);
+        return g2d;
     }
 
     protected int[] getOffsets(int[] range) {
