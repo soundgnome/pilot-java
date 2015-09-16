@@ -13,10 +13,16 @@ public class Pilot {
         view.activate();
 
         long nextFrameNanos;
-        long sleepNanos;
+        long sleepNanos = 1;
         while (isRunning) {
             nextFrameNanos = System.nanoTime() + frameNanos;
-            view.render();
+
+            if (sleepNanos > 0) {
+                view.render();
+            } else {
+                nextFrameNanos += sleepNanos;
+            }
+
             sleepNanos = nextFrameNanos - System.nanoTime();
 
             if (sleepNanos > 1000000) {
