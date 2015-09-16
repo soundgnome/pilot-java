@@ -1,7 +1,6 @@
 package pilot;
 
 import java.awt.BasicStroke;
-import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -10,9 +9,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class HexMapView extends Canvas {
-
-    private static final long serialVersionUID = 1L;
+public class HexMapView {
 
     protected BufferedImage background;
     protected BufferedImage composite;
@@ -61,22 +58,12 @@ public class HexMapView extends Canvas {
             row.put(pixels[0], coords);
         }
 
-    }
-
-    @Override
-    public Dimension getPreferredSize() {
-        return this.mapDimension;
-    }
-
-    @Override
-    public void paint(Graphics graphics) {
         this.updateBackground();
-        this.render();
     }
 
-    public void render() {
+    public BufferedImage getRenderedFrame() {
         this.updateComposite();
-        this.getGraphics().drawImage(this.composite, 0, 0, null);
+        return this.composite;
     }
 
     protected void updateBackground() {

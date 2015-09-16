@@ -6,8 +6,6 @@ import java.awt.Point;
 
 public class MKHexMapView extends HexMapView {
 
-    private static final long serialVersionUID = 1L;
-
     private MKLevelController level;
 
 
