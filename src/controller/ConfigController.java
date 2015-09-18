@@ -31,7 +31,7 @@ public class ConfigController {
 
 
     public int getInt(String key) {
-        int value;
+        int value = Integer.MIN_VALUE;
         String spec = this.getString(key);
         
         if (spec != null) {
@@ -39,10 +39,7 @@ public class ConfigController {
                 value = Integer.parseInt(this.getString(key));
             } catch (NumberFormatException e) {
                 System.err.println("Value for key '" + key + "' is not an integer");
-                value = Integer.parseInt(null);
             }
-        } else {
-            value = Integer.parseInt(null);
         }
 
         return value;
@@ -50,7 +47,7 @@ public class ConfigController {
 
 
     public Dimension getDimension(String key) {
-        Dimension value;
+        Dimension value = null;
         String spec = this.getString(key);
 
         if (spec != null) {
@@ -60,14 +57,10 @@ public class ConfigController {
 
             } catch (ArrayIndexOutOfBoundsException e) {
                 System.err.println("Dimension value for key '" + key + "' has too few values");
-                value = null;
 
             } catch (NumberFormatException e) {
                 System.err.println("Dimension sub-value for key '" + key + "' is not an integer");
-                value = null;
             }
-        } else {
-            value = null;
         }
 
         return value;
