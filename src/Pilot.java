@@ -1,5 +1,7 @@
 package pilot;
 
+import java.io.IOException;
+
 public class Pilot {
 
     final private static long frameNanos = 1000000000 / 60;
@@ -8,12 +10,21 @@ public class Pilot {
     private static MasterView view;
 
     public static void main(String[] args) {
-        isRunning = true;
-        view = new MasterView();
-        view.activate();
+
+        try {
+            ConfigController config = new ConfigController();
+            view = new MasterView(config);
+            view.activate();
+            isRunning = true;
+
+        } catch (IOException e) {
+            System.err.println("Error loading config: " + e.getMessage());
+            isRunning = false;
+        }
 
         long nextFrameNanos;
         long sleepNanos = 1;
+
         while (isRunning) {
             nextFrameNanos = System.nanoTime() + frameNanos;
 

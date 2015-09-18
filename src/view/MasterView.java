@@ -18,20 +18,22 @@ public class MasterView extends Canvas {
     private JPanel panel;
     private BufferStrategy bufferStrat;
 
+    private ConfigController config;
     private HexMapModel map;
     private HexMapView view;
     private MKLevelController level;
 
-    public MasterView() {
+    public MasterView(ConfigController config) {
+        this.config = config;
         this.level = new MKLevelController();
         this.map = level.getMapForLevel(1);
-        this.frame = new JFrame("Pilot");
+        this.frame = new JFrame(config.getString("windowName"));
         this.panel = (JPanel)this.frame.getContentPane();
     }
 
     public void activate() {
-        Dimension windowSize = new Dimension(1200, 675);
-        this.view = new MKHexMapView(map, windowSize, 60, this.level);
+        Dimension windowSize = this.config.getDimension("windowSize");
+        this.view = new MKHexMapView(map, windowSize, this.config.getInt("hexSize"), this.level);
 
         this.setBounds(0, 0, windowSize.width, windowSize.height);
 
