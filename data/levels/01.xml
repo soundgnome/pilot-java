@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <level>
-    <area id="area" startx="743" starty="748" width="12" height="12" />
+    <area id="area" startx="734" starty="734" width="32" height="32" />
     <ship id="ship"><coords x="750" y="750" /></ship>
-    <star volume="8" mass="2"><coords x="745" y="748" /></star>
-    <star volume="8" mass="2"><coords x="752" y="756" /></star>
-    <star volume="6" mass="1"><coords x="747" y="752" /></star>
-    <star volume="10" mass="3"><coords x="753" y="750" /></star>
-    <star volume="16" mass="4"><coords x="745" y="756" /></star>
-    <star volume="16" mass="4"><coords x="749" y="757" /></star>
+    <star volume="4" mass="2"><coords x="745" y="748" /></star>
+    <star volume="4" mass="2"><coords x="752" y="756" /></star>
+    <star volume="3" mass="1"><coords x="747" y="752" /></star>
+    <star volume="5" mass="3"><coords x="753" y="750" /></star>
+    <star volume="7" mass="4"><coords x="745" y="756" /></star>
+    <star volume="7" mass="4"><coords x="749" y="757" /></star>
+    <star volume="4" mass="2"><coords x="739" y="752" /></star>
+    <star volume="3" mass="1"><coords x="737" y="762" /></star>
+    <star volume="3" mass="1"><coords x="747" y="763" /></star>
+    <star volume="3" mass="1"><coords x="737" y="738" /></star>
+    <star volume="4" mass="2"><coords x="747" y="737" /></star>
+    <star volume="7" mass="4"><coords x="756" y="747" /></star>
+    <star volume="4" mass="2"><coords x="745" y="736" /></star>
+    <star volume="3" mass="1"><coords x="756" y="736" /></star>
+    <star volume="5" mass="3"><coords x="760" y="761" /></star>
 </level>

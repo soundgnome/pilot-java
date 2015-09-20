@@ -14,16 +14,13 @@ public class HexMapView {
     protected BufferedImage background;
     protected BufferedImage composite;
 
-    protected final Color backgroundColor = Color.BLACK;
-    protected final Color foregroundColor = Color.WHITE;
-    protected final Color[] gravityColors = new Color[]{new Color(128, 0, 0),
-                                                new Color(255, 0, 0),
-                                                new Color(255, 96, 0),
-                                                new Color(255, 192, 0),
-                                                new Color(255, 255, 128)};
+    protected Color backgroundColor;
+    protected Color foregroundColor;
+    protected Color starColor;
+    protected Color shipColor;
+    protected Color[] gravityColors;
 
     protected final BasicStroke basicStroke = new BasicStroke(1);
-    protected final BasicStroke gravityStroke = new BasicStroke(5);
 
     protected final int[] hexInfoCoords = new int[]{0, 50, 80, 200, 50};
 
@@ -37,11 +34,12 @@ public class HexMapView {
     protected HashMap<Integer, HashMap<Integer, int[]>> pixelLookup;
 
 
-    public HexMapView(HexMapModel model, Dimension mapDimension, int hexSize) {
+    public HexMapView(HexMapModel model, Dimension mapDimension, ConfigController config) {
         this.model = model;
         this.mapDimension = mapDimension;
+
         this.offsets = this.getOffsets(model.getRange());
-        this.hexDimensions = this.calculateDimensions(hexSize);
+        this.hexDimensions = this.calculateDimensions(config.getInt("hexSize"));
         this.hexInfoCoords[0] = mapDimension.width-hexInfoCoords[3];
         this.background = new BufferedImage(mapDimension.width, mapDimension.height, BufferedImage.TYPE_INT_RGB);
         this.composite = new BufferedImage(mapDimension.width, mapDimension.height, BufferedImage.TYPE_INT_RGB);
@@ -57,6 +55,16 @@ public class HexMapView {
             }
             row.put(pixels[0], coords);
         }
+
+        this.backgroundColor = config.getColor("bgColor");
+        this.foregroundColor = config.getColor("fgColor");
+        this.shipColor = config.getColor("shipColor");
+        this.starColor = config.getColor("starColor");
+        this.gravityColors = new Color[]{config.getColor("gravColor1"),
+                                         config.getColor("gravColor2"),
+                                         config.getColor("gravColor3"),
+                                         config.getColor("gravColor4"),
+                                         config.getColor("gravColor5")};
 
         this.updateBackground();
     }
@@ -119,33 +127,30 @@ public class HexMapView {
         int[] y = new int[]{coords[1]-this.hexDimensions.get("HALF_HEIGHT"), coords[1]-this.hexDimensions.get("SIDE_HEIGHT"), coords[1]+this.hexDimensions.get("SIDE_HEIGHT"), coords[1]+this.hexDimensions.get("HALF_HEIGHT")};
         int[] yPoints = new int[]{y[0], y[1], y[2], y[3], y[2], y[1]};
 
-        if (hex.star != null) {
-            this.drawStar(g, hex.star);
-        }
-
         if (hex.tidalForce > 0) {
-            int[] gravX = new int[]{x[0], x[1]-3, x[1]-3, x[0], x[2]+3, x[2]+3};
-            int[] gravY = new int[]{y[0]+3, y[1]+2, y[2]-2, y[3]-3, y[2]-2, y[1]+2};
             try {
                 g.setColor(this.gravityColors[hex.tidalForce-1]);
             } catch (ArrayIndexOutOfBoundsException e) {
                 g.setColor(Color.WHITE);
             }
-            g.setStroke(this.gravityStroke);
-            g.drawPolygon(gravX, gravY, 6);
-            g.setColor(this.foregroundColor);
-            g.setStroke(this.basicStroke);
+            g.fillPolygon(xPoints, yPoints, 6);
         }
 
         if (hex.ship != null) {
             this.drawShip(g, hex.ship);
         }
 
+        if (hex.star != null) {
+            this.drawStar(g, hex.star);
+        }
+
+        g.setColor(this.foregroundColor);
         g.drawPolygon(xPoints, yPoints, 6);
     }
 
     protected void drawShip(Graphics g, ShipModel ship) {
         if (ship != null) {
+            g.setColor(this.shipColor);
             int size = this.hexDimensions.get("WIDTH");
             int[] coords = this.coordsToPixels(ship.getCoords());
             int[] xPoints = new int[]{coords[0], coords[0]+size/8, coords[0], coords[0]-size/8, coords[0]};
@@ -158,6 +163,7 @@ public class HexMapView {
         int radius = star.getVolume();
         int diameter = radius*2;
         int[] coords = this.coordsToPixels(star.getCoords());
+        g.setColor(this.starColor);
         g.fillOval(coords[0]-radius, coords[1]-radius, diameter, diameter);
     }
 }

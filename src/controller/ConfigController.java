@@ -1,5 +1,6 @@
 package pilot;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -30,18 +31,20 @@ public class ConfigController {
     }
 
 
-    public int getInt(String key) {
-        int value = Integer.MIN_VALUE;
-        String spec = this.getString(key);
-        
+    public Color getColor(String key) {
+        Color value = null;
+        String spec = this.props.getProperty(key);
         if (spec != null) {
             try {
-                value = Integer.parseInt(this.getString(key));
+                String[] rgb = spec.split(",");
+                value = new Color(Integer.parseInt(rgb[0]), Integer.parseInt(rgb[1]), Integer.parseInt(rgb[2]));
+            } catch (ArrayIndexOutOfBoundsException e) {
+                System.err.println("Color value for key '" + key + "' has too few values");
+
             } catch (NumberFormatException e) {
-                System.err.println("Value for key '" + key + "' is not an integer");
+                System.err.println("Color sub-value for key '" + key + "' is not an integer");
             }
         }
-
         return value;
     }
 
@@ -60,6 +63,22 @@ public class ConfigController {
 
             } catch (NumberFormatException e) {
                 System.err.println("Dimension sub-value for key '" + key + "' is not an integer");
+            }
+        }
+
+        return value;
+    }
+
+
+    public int getInt(String key) {
+        int value = Integer.MIN_VALUE;
+        String spec = this.getString(key);
+
+        if (spec != null) {
+            try {
+                value = Integer.parseInt(this.getString(key));
+            } catch (NumberFormatException e) {
+                System.err.println("Value for key '" + key + "' is not an integer");
             }
         }
 

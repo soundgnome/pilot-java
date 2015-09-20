@@ -9,8 +9,8 @@ public class MKHexMapView extends HexMapView {
     private MKLevelController level;
 
 
-    public MKHexMapView(HexMapModel model, Dimension mapDimension, int hexSize, MKLevelController level) {
-        super(model, mapDimension, hexSize);
+    public MKHexMapView(HexMapModel model, Dimension mapDimension, ConfigController config, MKLevelController level) {
+        super(model, mapDimension, config);
         this.level = level;
     }
 

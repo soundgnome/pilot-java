@@ -33,7 +33,7 @@ public class MasterView extends Canvas {
 
     public void activate() {
         Dimension windowSize = this.config.getDimension("windowSize");
-        this.view = new MKHexMapView(map, windowSize, this.config.getInt("hexSize"), this.level);
+        this.view = new MKHexMapView(map, windowSize, this.config, this.level);
 
         this.setBounds(0, 0, windowSize.width, windowSize.height);
 
