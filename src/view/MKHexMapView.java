@@ -20,8 +20,10 @@ public class MKHexMapView extends HexMapView {
 
         Point pixels = this.level.getMousePosition();
         int[] coords = this.pixelsToCoords(pixels.x, pixels.y);
-        g2d.setColor(this.foregroundColor);
-        g2d.drawString("Cursor Position: "+coords[0]+", "+coords[1], this.hexInfoCoords[0], this.hexInfoCoords[2]);
+        if (coords != null) {
+            g2d.setColor(this.foregroundColor);
+            g2d.drawString("Cursor Position: "+coords[0]+", "+coords[1], this.hexInfoCoords[0], this.hexInfoCoords[2]);
+        }
 
         return g2d;
     }

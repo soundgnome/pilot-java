@@ -29,6 +29,7 @@ public class HexMapView {
 
     protected Dimension mapDimension;
     protected HashMap<String, Integer> hexDimensions;
+    protected int[] range;
     protected int[] offsets;
 
     protected HashMap<Integer, HashMap<Integer, int[]>> pixelLookup;
@@ -38,9 +39,13 @@ public class HexMapView {
         this.model = model;
         this.mapDimension = mapDimension;
 
-        this.offsets = this.getOffsets(model.getRange());
+        int[] coordRange = model.getRange();
+        this.offsets = this.getOffsets(coordRange);
         this.hexDimensions = this.calculateDimensions(config.getInt("hexSize"));
         this.hexInfoCoords[0] = mapDimension.width-hexInfoCoords[3];
+        this.range = this.getRange(coordRange);
+        System.out.println("Y Range is "+this.range[1]+" to "+this.range[3]);
+
         this.background = new BufferedImage(mapDimension.width, mapDimension.height, BufferedImage.TYPE_INT_RGB);
         this.composite = new BufferedImage(mapDimension.width, mapDimension.height, BufferedImage.TYPE_INT_RGB);
 
@@ -96,6 +101,17 @@ public class HexMapView {
         return new int[]{range[0], range[3]};
     }
 
+    protected int[] getRange(int[] range) {
+        int[] topLeft = this.coordsToPixels(new int[]{range[0], range[3]});
+        int[] bottomRight = this.coordsToPixels(new int[]{range[2], range[1]});
+        return new int[]{
+            topLeft[0] - this.hexDimensions.get("HALF_WIDTH"),
+            topLeft[1] - this.hexDimensions.get("HALF_HEIGHT"),
+            bottomRight[0] + this.hexDimensions.get("HALF_WIDTH"),
+            bottomRight[1] + this.hexDimensions.get("HALF_HEIGHT")
+        };
+    }
+
     protected HashMap<String, Integer> calculateDimensions(int size) {
         double side = 0.5*size/Math.sqrt(3);
         HashMap<String, Integer> dimensions = new HashMap<String, Integer>();
@@ -114,9 +130,24 @@ public class HexMapView {
     }
 
     protected int[] pixelsToCoords(int x, int y) {
-        y = y - (y % this.hexDimensions.get("ROW_HEIGHT"));
-        x = x - (x % this.hexDimensions.get("WIDTH"));
-        return new int[]{x, y};
+        if (y < this.range[1])
+            return null;
+
+        int[] coords = new int[]{-1, -1};
+        int height = this.hexDimensions.get("ROW_HEIGHT");
+
+        for (int i=this.range[0]+height; i<this.range[3]; i+=height) {
+            if (y < i) {
+                coords[1] = i;
+                break;
+            }
+        }
+        if (coords[1] == -1) {
+            return null;
+        }
+
+        coords[0] = x - (x % this.hexDimensions.get("WIDTH"));
+        return coords;
     }
 
     protected void drawHex(Graphics2D g, int[] coords, HexModel hex) {

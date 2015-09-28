@@ -1,13 +1,14 @@
 package pilot;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
 import java.awt.Canvas;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.event.MouseInputListener;
 
 
 public class MasterView extends Canvas {
@@ -48,6 +49,8 @@ public class MasterView extends Canvas {
         this.setIgnoreRepaint(true);
         this.createBufferStrategy(2);
         this.bufferStrat = this.getBufferStrategy();
+
+        this.addMouseMotionListener(this.level);
     }
 
     public void render() {
