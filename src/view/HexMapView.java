@@ -44,7 +44,6 @@ public class HexMapView {
         this.hexDimensions = this.calculateDimensions(config.getInt("hexSize"));
         this.hexInfoCoords[0] = mapDimension.width-hexInfoCoords[3];
         this.range = this.getRange(coordRange);
-        System.out.println("Y Range is "+this.range[1]+" to "+this.range[3]);
 
         this.background = new BufferedImage(mapDimension.width, mapDimension.height, BufferedImage.TYPE_INT_RGB);
         this.composite = new BufferedImage(mapDimension.width, mapDimension.height, BufferedImage.TYPE_INT_RGB);
@@ -136,17 +135,38 @@ public class HexMapView {
         int[] coords = new int[]{-1, -1};
         int height = this.hexDimensions.get("ROW_HEIGHT");
 
-        for (int i=this.range[0]+height; i<this.range[3]; i+=height) {
+        int row = 0;
+        for (int i=this.range[1]+height; i<this.range[3]; i+=height) {
             if (y < i) {
-                coords[1] = i;
+                if (y < i-this.hexDimensions.get("HALF_HEIGHT")) {
+                } else {
+                    coords[1] = this.offsets[1] - row;
+
+                    int columnOffset = row * this.hexDimensions.get("HALF_WIDTH");
+                    int firstX = this.range[0] + columnOffset;
+                    if (x < firstX)
+                        return null;
+
+                    int width = this.hexDimensions.get("WIDTH");
+                    int lastX = this.range[2];
+                    int column = 0;
+                    for (int j=firstX+width; j<lastX; j+=width) {
+                        if (x < j) {
+                            coords[0] = this.offsets[0] + column;
+                            break;
+                        }
+                        column++;
+                    }
+
+                }
                 break;
             }
+            row++;
         }
-        if (coords[1] == -1) {
+        if (coords[0] == -1) {
             return null;
         }
 
-        coords[0] = x - (x % this.hexDimensions.get("WIDTH"));
         return coords;
     }
 
