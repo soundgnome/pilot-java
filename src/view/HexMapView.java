@@ -29,8 +29,8 @@ public class HexMapView {
 
     protected Dimension mapDimension;
     protected HashMap<String, Integer> hexDimensions;
-    protected int[] range;
-    protected int[] offsets;
+    protected int[] coordRange;
+    protected int[] pixelRange;
     protected float slope;
 
     protected HashMap<Integer, HashMap<Integer, int[]>> pixelLookup;
@@ -41,10 +41,10 @@ public class HexMapView {
         this.mapDimension = mapDimension;
 
         int[] coordRange = model.getRange();
-        this.offsets = this.getOffsets(coordRange);
+        this.coordRange = coordRange;
         this.hexDimensions = this.calculateDimensions(config.getInt("hexSize"));
         this.hexInfoCoords[0] = mapDimension.width-hexInfoCoords[3];
-        this.range = this.getRange(coordRange);
+        this.pixelRange = this.getPixelRange(coordRange);
         this.slope = (float)this.hexDimensions.get("SIDE_HEIGHT")/this.hexDimensions.get("HALF_WIDTH");
 
         this.background = new BufferedImage(mapDimension.width, mapDimension.height, BufferedImage.TYPE_INT_RGB);
@@ -98,18 +98,14 @@ public class HexMapView {
         return g2d;
     }
 
-    protected int[] getOffsets(int[] range) {
-        return new int[]{range[0], range[3]};
-    }
-
-    protected int[] getRange(int[] range) {
+    protected int[] getPixelRange(int[] range) {
         int[] topLeft = this.coordsToPixels(new int[]{range[0], range[3]});
         int[] bottomRight = this.coordsToPixels(new int[]{range[2], range[1]});
         return new int[]{
             topLeft[0] - this.hexDimensions.get("HALF_WIDTH"),
             topLeft[1] - this.hexDimensions.get("HALF_HEIGHT"),
-            (range[2] - range[1] +1) * this.hexDimensions.get("WIDTH"),
-            bottomRight[1] + this.hexDimensions.get("HALF_HEIGHT")
+            (range[2] - range[0] + 2) * this.hexDimensions.get("WIDTH"),
+            bottomRight[1] + (2 * this.hexDimensions.get("ROW_HEIGHT"))
         };
     }
 
@@ -125,43 +121,52 @@ public class HexMapView {
     }
 
     protected int[] coordsToPixels(int[] coords) {
-        int y = this.hexDimensions.get("ROW_HEIGHT") * (this.offsets[1] - coords[1]) + this.hexDimensions.get("WIDTH");
-        int x = (this.hexDimensions.get("WIDTH") * (coords[0] - this.offsets[0])) + (this.hexDimensions.get("HALF_WIDTH") * (this.offsets[1] - coords[1]))  + this.hexDimensions.get("WIDTH");
+        int y = this.hexDimensions.get("ROW_HEIGHT") * (this.coordRange[3] - coords[1]) + this.hexDimensions.get("WIDTH");
+        int x = (this.hexDimensions.get("WIDTH") * (coords[0] - this.coordRange[0])) + (this.hexDimensions.get("HALF_WIDTH") * (this.coordRange[3] - coords[1]))  + this.hexDimensions.get("WIDTH");
         return new int[]{x,y};
     }
 
     protected int[] pixelsToCoords(int x, int y) {
-        if (y < this.range[1])
+        if (y < this.pixelRange[1])
             return null;
 
         int[] coords = null;
         int height = this.hexDimensions.get("ROW_HEIGHT");
 
         int row = 0;
-        for (int i=this.range[1]+height; i<this.range[3]; i+=height) {
+        for (int i=this.pixelRange[1]+height; i<this.pixelRange[3]; i+=height) {
             if (y < i) {
 
                 if (y < i-this.hexDimensions.get("HALF_HEIGHT")) {
 
                     // We're in a diagonal row, need to consider X when determining Y
                     int columnOffset = (row -1) * this.hexDimensions.get("HALF_WIDTH");
-                    int firstX = this.range[0] + columnOffset;
+                    int firstX = this.pixelRange[0] + columnOffset;
                     if (x < firstX)
                         return null;
 
                     int width = this.hexDimensions.get("HALF_WIDTH");
-                    int lastX = firstX + this.range[2] + (width * 3);
+                    int lastX = firstX + this.pixelRange[2];
                     int column = 0;
                     for (int j=firstX+width; j<lastX; j+=width) {
                         if (x < j) {
                             if (column % 2 == 0) {
                                 float slope = ((float)(i-this.hexDimensions.get("HALF_HEIGHT")-y))/(j-x);
                                 if (slope < this.slope) {
-                                    coords = new int[]{ this.offsets[0] + (column/2) - 1,
-                                                        this.offsets[1] - row};
+                                    coords = new int[]{ this.coordRange[0] + (column/2) - 1,
+                                                        this.coordRange[3] - row};
                                 } else {
-                                    coords = new int[]{ this.offsets[0] + (column/2),
-                                                        this.offsets[1] - row + 1};
+                                    coords = new int[]{ this.coordRange[0] + (column/2),
+                                                        this.coordRange[3] - row + 1};
+                                }
+                            } else {
+                                float slope = ((float)(i-this.hexDimensions.get("HALF_HEIGHT")-y))/(x-j+width);
+                                if (slope < this.slope) {
+                                    coords = new int[]{ this.coordRange[0] + (column/2),
+                                                        this.coordRange[3] - row};
+                                } else {
+                                    coords = new int[]{ this.coordRange[0] + (column/2),
+                                                        this.coordRange[3] - row + 1};
                                 }
                             }
                             break;
@@ -173,16 +178,16 @@ public class HexMapView {
 
                     // We know Y for sure
                     int columnOffset = row * this.hexDimensions.get("HALF_WIDTH");
-                    int firstX = this.range[0] + columnOffset;
+                    int firstX = this.pixelRange[0] + columnOffset;
                     if (x < firstX)
                         return null;
 
                     int width = this.hexDimensions.get("WIDTH");
-                    int lastX = firstX + this.range[2] + width;
+                    int lastX = firstX + this.pixelRange[2];
                     int column = 0;
                     for (int j=firstX+width; j<lastX; j+=width) {
                         if (x < j) {
-                            coords = new int[]{this.offsets[0] + column, this.offsets[1] - row};
+                            coords = new int[]{this.coordRange[0] + column, this.coordRange[3] - row};
                             break;
                         }
                         column++;
@@ -191,6 +196,13 @@ public class HexMapView {
                 break;
             }
             row++;
+        }
+
+        // final check to see if we're out of bounds
+        if (coords != null) {
+            if (coords[0] < this.coordRange[0] || coords[0] > this.coordRange[2]
+                || coords[1] < this.coordRange[1] || coords[1] > this.coordRange[3])
+                return null;
         }
 
         return coords;
