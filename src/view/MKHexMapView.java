@@ -22,7 +22,7 @@ public class MKHexMapView extends HexMapView {
         int[] coords = this.pixelsToCoords(pixels.x, pixels.y);
         if (coords != null) {
             g2d.setColor(this.foregroundColor);
-            g2d.drawString("Cursor Position: "+coords[0]+", "+coords[1], this.hexInfoCoords[0], this.hexInfoCoords[2]);
+            g2d.drawString("sector coordinates: "+coords[0]+", "+coords[1], this.hexInfoCoords[0], this.hexInfoCoords[2]);
         }
 
         return g2d;

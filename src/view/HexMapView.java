@@ -150,8 +150,7 @@ public class HexMapView {
                     int column = 0;
                     for (int j=firstX+width; j<lastX; j+=width) {
                         if (x < j) {
-                            int xCoord;
-                            int yCoord;
+                            int xCoord, yCoord;
 
                             if (column % 2 == 0) {
                                 // top right to bottom left boundary - need to check X value against range
@@ -209,7 +208,7 @@ public class HexMapView {
                     int column = 0;
                     for (int j=firstX+width; j<lastX; j+=width) {
                         if (x < j) {
-                            coords = new int[]{this.coordRange[0] + column, this.coordRange[3] - row};
+                            coords = new int[]{this.coordRange[0] + column, yCoord};
                             break;
                         }
                         column++;
