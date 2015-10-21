@@ -150,25 +150,41 @@ public class HexMapView {
                     int column = 0;
                     for (int j=firstX+width; j<lastX; j+=width) {
                         if (x < j) {
+                            int xCoord;
+                            int yCoord;
+
                             if (column % 2 == 0) {
+                                // top right to bottom left boundary - need to check X value against range
                                 float slope = ((float)(i-this.hexDimensions.get("HALF_HEIGHT")-y))/(j-x);
                                 if (slope < this.slope) {
-                                    coords = new int[]{ this.coordRange[0] + (column/2) - 1,
-                                                        this.coordRange[3] - row};
+                                    xCoord = this.coordRange[0] + (column/2) - 1;
+                                    if (xCoord < this.coordRange[0])
+                                        return null;
+                                    yCoord = this.coordRange[3] - row;
                                 } else {
-                                    coords = new int[]{ this.coordRange[0] + (column/2),
-                                                        this.coordRange[3] - row + 1};
+                                    xCoord = this.coordRange[0] + (column/2);
+                                    if (xCoord > this.coordRange[2])
+                                        return null;
+                                    yCoord =this.coordRange[3] - row + 1;
                                 }
+
                             } else {
+                                // bottom left to top right boundary - X value will be within range
                                 float slope = ((float)(i-this.hexDimensions.get("HALF_HEIGHT")-y))/(x-j+width);
                                 if (slope < this.slope) {
-                                    coords = new int[]{ this.coordRange[0] + (column/2),
-                                                        this.coordRange[3] - row};
+                                    xCoord = this.coordRange[0] + (column/2);
+                                    yCoord = this.coordRange[3] - row;
                                 } else {
-                                    coords = new int[]{ this.coordRange[0] + (column/2),
-                                                        this.coordRange[3] - row + 1};
+                                    xCoord = this.coordRange[0] + (column/2);
+                                    yCoord = this.coordRange[3] - row + 1;
                                 }
                             }
+
+                            // make sure Y value is within range
+                            if (yCoord < this.coordRange[1] || yCoord > this.coordRange[3])
+                                return null;
+
+                            coords = new int[]{ xCoord, yCoord };
                             break;
                         }
                         column++;
@@ -177,8 +193,14 @@ public class HexMapView {
                 } else {
 
                     // We know Y for sure
+                    int yCoord = this.coordRange[3] - row;
+
+                    if (yCoord < this.coordRange[1])
+                        return null;
+
                     int columnOffset = row * this.hexDimensions.get("HALF_WIDTH");
                     int firstX = this.pixelRange[0] + columnOffset;
+
                     if (x < firstX)
                         return null;
 
@@ -196,13 +218,6 @@ public class HexMapView {
                 break;
             }
             row++;
-        }
-
-        // final check to see if we're out of bounds
-        if (coords != null) {
-            if (coords[0] < this.coordRange[0] || coords[0] > this.coordRange[2]
-                || coords[1] < this.coordRange[1] || coords[1] > this.coordRange[3])
-                return null;
         }
 
         return coords;
