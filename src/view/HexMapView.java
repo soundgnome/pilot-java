@@ -140,12 +140,12 @@ public class HexMapView {
                 if (y < i-this.hexDimensions.get("HALF_HEIGHT")) {
 
                     // We're in a diagonal row, need to consider X when determining Y
-                    int columnOffset = (row -1) * this.hexDimensions.get("HALF_WIDTH");
+                    int width = this.hexDimensions.get("HALF_WIDTH");
+                    int columnOffset = (row -1) * width;
                     int firstX = this.pixelRange[0] + columnOffset;
                     if (x < firstX)
                         return null;
 
-                    int width = this.hexDimensions.get("HALF_WIDTH");
                     int lastX = firstX + this.pixelRange[2];
                     int column = 0;
                     for (int j=firstX+width; j<lastX; j+=width) {
